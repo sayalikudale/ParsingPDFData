@@ -1,0 +1,116 @@
+ 6   
+2 The Architectural-Level Patterns 
+2.1 Distrustful Decomposition 
+2.1.1 Intent The intent of the Distrustful Decomposition secure design pattern is to move separate functions 
+into mutually untrusting programs, thereby reducing the 
+ attack surface of the individual programs that make up the system 
+ functionality and data exposed to an attacker 
+if one of the mutually untrusting programs is 
+compromised 
+2.1.2 Also Known As 
+Privilege reduction 
+2.1.3 Motivation 
+Many attacks target vulnerable applications runn
+ing with elevated permissions. This allows the 
+attacker to access more information and/or allows
+ the attacker to perform more damage after ex-
+ploiting a security hole in the application than if the application had been running with more re-
+strictive permissions. Some examples of this class of attack are 
+ various attacks in which Internet Explorer runn
+ing in an account with administrator privileg-
+es is compromised 
+ security flaws in Norton Anti
+Virus 2005 that allow attacker
+s to run arbitrary VBS scripts 
+when running with administrator privileges 
+ a buffer overflow vulnerability in BSD-derived telnet daemons that allows an attacker to run 
+arbitrary code as root 
+All of these attacks take advantage of security fl
+aw(s) in an application running with elevated pri-
+vileges (root under UNIX or administrator under Windows) to compromise the application and 
+then use the application™s elevated privileges and basic functionality to compromise other applica-
+tions running on the com
+puter or to access sensitive data. The Distrustful Decomposition pattern 
+isolates security vulnerabilities to a small subs
+et of a system such that compromising a single 
+component of the system does not lead to the entire system being compromised. The attacker will 
+only have the functionality and data of the single compromised component at their disposal for 
+
+malicious activity, not the functionality and data of the entire application. 
+2.1.4 Applicability 
+This pattern applies to systems where files or us
+er-supplied data must be handled in a number of 
+different ways by programs running with varying privileges and responsibilities. A naive imple-
+mentation of this system may allocate many disparate functions to the same program, forcing the 
+program to be run at the privilege level require
+d by the program function requiring the highest 
+privilege level. This provides a large attack surface for attackers and leaves an attacker with 
+access to a system with a high privilege 
+level if the system is compromised. 
+ 7   
+A system can make use of the Distrustful Decomposition pattern if 
+ the system performs more than one high-level function 
+ the various functions of the system require different privilege levels 
+2.1.5 Structure 
+The general structure of this pattern breaks the sy
+stem up into two or more programs that run as 
+separate processes, with each process potentially having different privileges. Each process handles 
+a small, well-defined subset of the system functionality. Communication between processes oc-
+curs using an inter-process communication mechanis
+m such as RPC, socket
+s, SOAP, or shared files. 
+ Figure 1: General Structure 
+of the Distrustful Decomposition Secure Design Pattern 
+2.1.6 Participants 
+These are the participants in the 
+Distrustful Decomposition pattern: 
+ a number of separate programs, each running in 
+a separate process. For more complete sepa-
+ration, each process could have a unique user ID that does not share any privileges with the 
+other user IDs. 
+ a local user or a remote syst
+em connecting over a network 
+ possibly the system™s file system 
+ possibly an inter-process communication mechanis
+m such as UNIX domain sockets, RPC, or 
+SOAP  
+2.1.7 Consequences 
+Distrustful Decomposition prevents an attacker from compromising an entire system in the event 
+that a single component program is successfully
+ exploited because no other program trusts the 
+results from the compromised one. 
+2.1.8 Implementation This pattern employs nothing beyond the standard process/privilege model already existing in the 
+
+operating system. Each program runs in its own process space with potentially separate user privi-
+leges. Communication between separate pr
+ograms is either one-way or two-way. 
+ One-way. Only fork()/exec() (UNIX/Linux/etc.), 
+CreateProcess()
+ (Windows Vista), 
+or some other OS-specific method of programmatic
+ process creation is us
+ed to transfer con-
+trol. One-way communication reduces the coupling
+ between processes, making it more diffi-
+ 8   
+cult for an attacker to compromise one system component from another, already compro-
+mised component. 
+ Two-way. A two-way inter-process communication 
+mechanism like TCP or SOAP is used. 
+Extra care must be taken when using a two-
+way communication mechanism because it is 
+possible for one process involved in the two-way communication to be compromised and 
+under the control of an attacker. As with the file system, two-way communication should not 
+be inherently trusted. 
+The file system may be a means of interaction, but no component places any inherent trust in the 
+contents of the file. 
+2.1.9 Sample Code 
+An excellent example system where this pattern is applied is the qmail mail system, which is a 
+complex system with a large combination of inte
+ractions between systems,
+ users, and software components. 
+The overall structure of the qmail system is shown in Figure 2 [Oppermann 1998]. 
+ Figure 2: Structure of
+ the Qmail Mail System
+1   1  Source: http://www.nrg4u.com/qmail/the-big-qmail-
+picture-103-p1.gif. Used with permission from the author. 

@@ -1,0 +1,383 @@
+ 96   
+ /* ... */ 
+ free(canonical_filename); canonical_filename = NULL; 4.4.9 Known Uses 
+ xarchive-0.2.8-6  
+Secure XML-RPC Server Library 
+4.5 Input Validation 
+4.5.1 Intent Many vulnerabilities can be prevented by ensuring that input data is properly validated. Input va-
+lidation requires that a developer correctly identify and validate all external inputs from untrusted 
+data sources.  
+4.5.2 Motivation 
+The use of unvalidated user input by an application is the root cause of many serious security ex-
+ploits, such as buffer overflow attacks, SQL injection attacks, and cross-site scripting attacks.  
+Given the prevalence of applications with a clie
+nt-server architecture, one
+ issue faced by system 
+designers is where to perform the input validation, on the client side or on the server side. Prob-
+lems in input validation occur when only client-side validation is performed. 
+Client-side validations are inherently insecure. It is easy to spoof a web page submission and by-
+pass any scripting on the original page. This is more
+ or less true for any type of client-server ar-
+chitecture. However, while you cannot rely on client-side validation, it is still useful. Immediate 
+
+user feedback can avoid another round trip to the server, saving time and bandwidth.  
+4.5.3 Example A university is writing an ERP (Enterprise Resource Planning) application with a web-based in-
+
+terface to allow university employ
+ees to enter time sheet information, bill purchases against ac-
+counts, and track the status of various funding sources. The university wishes to ensure (among 
+other security considerations) that malicious or incorrect user input does not result in forbidden 
+
+changes to ERP data, violations of data integrity, or forbidden access to data by a user. 
+4.5.4 Applicability 
+This pattern is applicable to any software that
+ accepts data from an untrusted source. Any data 
+that arrives at a program interface across a securi
+ty boundary requires validation. General exam-
+ples of such data include 
+argv
+, environment, sockets, pipes, fi
+les, signals, shared memory, and 
+devices. Some input sources speci
+fic to web applications are 
+GET and 
+POST
+ parameters from 
+HTTP forms. Other applications may have other input sources. 
+ 974.TvaFi 4.T  4.Thanemoc4.T
+ta 7 | CMU/SEI-200
+9.5.5 Struhe structure o
+alidating eac
+higure 18: Stru
+c.5.6 Partihese are the p
+The systemand valid
+aExternal 
+esource. P
+o huma
+n files 
+ netwo mem
+o datab
+a.5.7 Conshe benefits o
+fandling of in
+ver when provi
+mance and the 
+ccur. 
+.5.8 Implhe implemen
+tasks: Specify andata valid
+ahandle an
+yipated by 
+tsystem en
+tput and 
+mInputInputInput9-TR-010 
+cture 
+f the Input Vah untrusted in
+pcture of the Inpuicipants 
+articipants in 
+m accepting d
+ates data. 
+entities provid
+iotential data s
+on users ork connectio
+nory shared witase systems 
+sequences 
+f validating al
+lvalid input are 
+ded with inv
+aadditional wo
+ementation tation of the I
+nnd validate d
+ated against t
+hy range or co
+mthe design an
+dtering an ind
+emultiplies thos
+e1Valid2Valid3Validalidation patte
+rput as shown i
+nut Validation 
+Pthe Input Val
+iata. The prim
+aing data. The 
+ources includ
+ens h other proce
+sl system input 
+prevented) analid input). Th
+erk required tonput Validatio
+ata. Data fro
+mhese specifica
+tmbination of 
+vd implementa
+teterminate sta
+te two values, 
+tdateSanInpdateSanInpdateSanInprn is fairly si
+mn Figure 18. 
+ Pattern idation patter
+nary participan
+tdata provide
+de sses 
+is increased 
+snd reliability (
+te costs of inp
+u identify and 
+hn secure desi
+gm all untruste
+dtions. The sys
+tvalid data. Va
+ltion of the sys
+te. For examp
+lthe system m
+uitizedput1itizedput2itizedput3mple and only 
+n:  t in this patte
+rd to the syste
+msystem securit
+ythe system be
+hut validation a
+handle all pla
+cgn pattern inv
+od sources mus
+ttem impleme
+nlid data, in thi
+stem and there
+le, if a system 
+ust either (a) varequires iden
+trn is the syste
+mm comes from 
+sy (exploits th
+ahaves in a pre
+re slower systces where inv
+aolves two gen
+t be fully specntation must 
+bs sense, is dat
+afore will not 
+raccepts two i
+nalidate the in
+ptifying and 
+m that accepts
+some externa
+lat rely on poo
+rdictable man
+-tem perfor-alid input can 
+eral design 
+cified and the 
+be designed to 
+a that is antic
+-result in the 
+ntegers as in-
+put to ensure 
+ l r -- 98   
+that an overflow or other exceptional condition cannot occur as a result of the operation or 
+(b) be prepared to handle the result of the operation in the event of an overflow or other ex-
+ceptional condition. The specifications must address limits, minimum and maximum values, 
+minimum and maximum lengths, valid content, initialization and re-initialization require-
+
+ments, and encryption requirements for storage and transmission. 
+ Ensure that all input meets the specification.
+ Use data encapsulation (e.g., classes) to de-
+fine and encapsulate input. For example, instead
+ of checking each character in a user name 
+input to make sure it is a valid character, de
+fine a class that encapsulates all operations on 
+that type of input. Input should be validated as soon as possible. Incorrect input is not always 
+malicious; often it is accidental. Reporting the error as soon as possible often helps correct 
+
+the problem. When an exception occurs deep in 
+the code it is not always apparent that the 
+cause was an invalid input and which input was out of bounds.  
+A data dictionary or similar mechanism can be us
+ed for specification of all program inputs. Input 
+is usually stored in variables, and some input is eventually stored as persistent data. To validate 
+input, specifications for what is valid input must be developed. A good practice is to define data 
+and variable specifications, not just for all variables that hold user input, but also for all variables 
+
+that hold data from a persistent store. The need to validate user input is obvious; the need to vali-
+date data being read from a persistent store is a defense against the possibility that the persistent 
+store has been tampered with. 
+General Implementation Process 
+In more detail, the process for implementing this pattern consists of the following steps: 
+1. Identify all input sources.
+ All sources of input to the system must be identified. An input 
+source is any entity or resource that provides 
+data to the system where the received data is 
+non-deterministic; that is, any source of data wh
+ere the value of the data is not completely 
+determined by the current internal state of the system and past actions performed by the sys-
+tem. As mentioned previously, potential input sources are the file system, a database system, 
+
+network traffic read via a socket, input from a pipe, the keyboard, etc. 
+2. Identify all reads of input sources. For each input source, identify every point in the system 
+where data from the input source is initially read. Note that if the system has been designed 
+
+to be loosely coupled from the input sources and hence has interaction with the input sources 
+isolated to a small number of places in the code base, the identification of reads from input 
+sources will be relatively simple. However, if the system was designed so that interaction 
+
+with data sources is scattered throughout the code base, identification of all reads from input 
+sources will be difficult. 
+3. Define criteria for valid data. For each of the data reads identified in the previous step, de-
+fine what it means for data read by the current read to be valid. The definition of validity will 
+depend on the type of data being read and what that particular data will be used for. For ex-
+ample:  
+a. Numeric data
+. Numeric data should be checked to make sure that it is within some 
+fixed bounds. It should also be checked to ensure it does not cause overflow or under-
+
+flow errors in subsequent computations. Additional guidance on the checking of numer-
+ 99   
+ic data can be found in the CERT C Secure Coding rules and recommendations [Sea-
+cord 2008]. 
+b. String data. If the string data is going to be displayed on a web page, it should be sani-
+tized to ensure that it does not contain HTML and client-side script code. If the string 
+
+data is going to be used in a database query, it should be sanitized to foil SQL injection 
+attacks. 
+4. Figure out how to handle invalid data.
+ For each of the data reads identified in step two, the 
+behavior of the system when given invalid data should be explicitly defined. Responses to 
+invalid input can range from issuing a warning and continuing with default data to re-
+requesting the data from the input source. Correct handling of invalid data is a highly appli-
+
+cation-specific matter. 
+5. Add code to check for 
+and handle invalid data. For each of the data reads identified in 
+step two, code should be written to check the validity of the data read and cases of invalid 
+
+data should be handled. 
+There are two common approaches to identifying invalid data: 
+blacklisting
+ and whitelisting
+. Blacklisting consists of comparing input data 
+against a set of inputs known to be invalid, 
+commonly known as a blacklist. If it is not on the blacklist, the input may be considered va-
+lid. Whitelisting consists of comparing input data
+ against a set of inputs known to be valid, 
+commonly known as a whitelist. If it is not on the whitelist, the input may be considered 
+
+invalid. Both whitelisting and blacklisting involve a simple implementation, comparing input 
+against the whitelist or blacklist. The main work comes in maintaining the whitelist or black-
+list. When either solution is possible, the whitelist is considered a safer choice because new 
+
+forms of invalid input need to be entered into a blacklist, but a whitelist requires no change 
+upon discovery of new forms of invalid input. 
+Additional Implementation Information 
+Some specific ways to implement input validation 
+in a structured method 
+are available in these 
+sources: 
+ ﬁInput Validation Using the Strategy Patternﬂ [Gervasio 2007]. This solution uses the Gang 
+of Four Strategy pattern [Gamma 1995] to handle input validation for various classes of in-
+puts. The presented solution is programmed in PHP. 
+ ﬁClient/Server Input Validation Using MS ATL 
+Server Librariesﬂ [MSDN 2009c]. This pro-
+vides an example (in C++) under Windows of doing client-server input validation using in-
+put validation routines provided by the ATL libraries. 
+ Secure Programming Cookbook
+ by Viega and Messier [Viega 2003]. This book provides 
+functions and programming strategies for performing input validation in C++. 
+ ﬁInput Validation in Apache Struts Frameworkﬂ
+ [You 2009]. This article provides a good 
+tutorial on how to perform input validation when programming in Java using the Apache 
+Struts framework. Of general interest in the tutorial is the detailed specification of valid sys-
+tem input. 
+ 100   
+4.5.9 Sample Code 
+This sample code is an example of a structured input validation methodology in C++. Note that 
+there are many other ways to implement the Input Validation pattern. 
+The basic architecture of the example implementation of the Input Validation pattern is to 
+represent a single set of validation criteria as a 
+validator
+ class. A 
+validator class is a class 
+with a single static 
+validate()
+ method that takes a piece of input to validate and returns 
+true if the input is valid and 
+false if the input is invalid. 
+The following 
+validator class checks to see if an integer falls within a defined range. 
+template <int lower, int upper> class InRange {  
+public: 
+ 
+  static bool validate(int item) { 
+    return ((item >= lower) && (item <= upper)); 
+  } 
+}; The following 
+validator class checks to see whether two integers will 
+not
+ overflow if multiplied 
+together [Seacord 2008]. 
+class NoOverflowOnMult {  
+public: 
+ 
+  static bool validate(int o1, int o2) { 
+ 
+    // This validation method only works if the size of a long long is 
+    // greater than double the size of an integer. 
+    assert(sizeof(long long) >= 2 * sizeof(int)); 
+ 
+    signed long long tmp = (signed long long)o1 * (signed long long)o2; 
+ 
+    // If the product cannot be represented as a 32-bit integer, 
+    // there is overflow. 
+    return !((tmp > INT_MAX) || (tmp < INT_MIN)); 
+  } 
+}; The following 
+validator class checks to see if a string holds a valid name where a valid name 
+contains only alphanumeric characters, contains exactly one space, and is less than a defined 
+number of characters long. 
+template<int maxNameLen> class GoodName {  
+public: 
+ 
+  static bool validate(char *str) { 
+ 
+    // The name should contain no digits and exactly 1 space.  101   
+    unsigned int pos = 0;     bool sawSpace = false; 
+    while ((pos < maxNameLen) && (str[pos] != '\0')) { 
+      // Are we looking at a space in the string we are checking? 
+      if (str[pos] == ' ') { 
+        // Is this the 2nd space in the string? 
+        if (sawSpace) { 
+          // The name has more than 1 space. It is not a valid name. 
+          return false; 
+        } 
+        // Track that we have seen 1 space. 
+        sawSpace = true; 
+      } 
+      else { 
+        // Is the current character an alphabetic character? 
+        if (!isalpha(str[pos])) { 
+          // The name contains at least 1 non-alphabetic character. It 
+          // is not a valid name. 
+          return false; 
+        } 
+      } 
+      // Advance to the next character. 
+      pos++; 
+    } 
+ 
+    // A valid name string is less than maxNameLen characters. 
+    if (str[pos] != '\0') { 
+      return false; 
+    } 
+ 
+    // If we get here the name is valid. 
+    return true; 
+  } 
+}; The main() program provides some examples of how to use the 
+validator
+ classes. 
+int main(int argc, const char* argv[]) { 
+  if (InRange<1,10>::validate(5)) { 
+    cout << "5 is valid input\n"; 
+  } 
+ 
+  if (!InRange<1,10>::validate(15)) { 
+    cout << "15 is NOT valid input\n"; 
+  } 
+ 
+  if (NoOverflowOnMult::validate(12, 33)) { 
+    cout << "12*33 will not overflow\n"; 
+  } 
+ 
+  if (!(NoOverflowOnMult::validate(INT_MAX, 33))) { 
+    cout << "INT_MAX*33 WILL overflow\n"; 
+  } 
+ 

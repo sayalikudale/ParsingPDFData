@@ -1,0 +1,158 @@
+ 26   
+3 The Design-Level Patterns 
+3.1 Secure Factory 
+3.1.1 Intent The intent of the Secure Factory secure design pattern is to separate the security dependent logic 
+involved in creating or selecting an object from the basic functionality of the created or selected 
+object. 
+In brief, the Secure Factory secure 
+design pattern operates as follows: 
+1. A caller asks an implementation of the Secure Factory pattern for the appropriate object giv-
+en a specific set of security credentials. 
+2. The Secure Factory pattern implementation uses 
+the given security credentials to select and 
+return the appropriate object. 
+The Secure Factory secure design pattern presente
+d here is a security specific extension of the 
+Abstract Factory pattern [Gamma 1995]. Note that 
+it is also possible to implement the Secure Fac-
+tory secure design pattern using the non-abstract
+ Factory pattern. Although the Abstract Factory 
+pattern is more complex than the non-abstract Fa
+ctory pattern, the Abstract Factory pattern is pre-
+sented here as the basis for the Secure Factory secure design pattern due to the Abstract Factory 
+
+pattern™s support for easily and transparently chan
+ging the underlying concrete factory implemen-
+tation.  
+Specializations of the Secure Factory secure desi
+gn pattern are the Secure Strategy Factory (Sec-
+tion 3.2) and Secure Builder Factory (S
+ection 3.3) secure design patterns. 
+3.1.2 Motivation (Forces) 
+A secure application may make use of an object w
+hose behavior is dependent of the level of trust 
+the application places in a user or operating environment. The logic defining the trust level de-
+pendent behavior of the object may be implemented in several ways: 
+ The object itself may be given information about the user/environment trust level, which 
+would be used by the object to control its beha
+vior. This creates a tight coupling between the 
+security-based behavior of the object and otherwise general object functionality. 
+ The secure application creating the objec
+t could use the information about the us-
+er/environment trust level to directly choose between different objects implementing differ-
+ent security-based behavior. Th
+is creates a tight coupling be
+tween the security-based object 
+selection logic and the more general secure application functionality. 
+ The logic needed to choose the correct object based on the user/environment trust level could 
+be decoupled from the object and the applicatio
+n code creating the object by the use of the 
+Secure Factory secure design pattern. This 
+creates a loose coupling 
+between the security-
+based object selection logic and the object implementation and a loose coupling between the 
+security-based object selection logic an
+d the secure application implementation. 
+ 27   
+The loose coupling between the security-based ob
+ject selection logic and the object implementa-
+tion and a loose coupling between the security-based
+ object selection logic and the secure applica-
+tion implementation makes it easier to verify, test, and modify the security-based object selection 
+logic. 
+3.1.3 Applicability 
+The Secure Factory secure desi
+gn pattern is applicable if 
+ The system constructs different versions of an object based on the security credentials of a 
+user/operating environment. 
+ The available security credentials contain all 
+of the information needed to select and con-
+struct the correct object. No other security-related information is needed. 
+3.1.4 Structure 
+Figure 7 shows the structure of the Secure Factory secure design pattern. 
+ Figure 7: Secure Factory Pattern Structure 
+3.1.5 Participants 
+ Client Œ The client tracks the security credenti
+als of a user and/or the environment in which 
+the system is operating. Given the security credentials of interest, the client uses the 
+ge-tInstance() method of the AbstractSecureFactory cl
+ass to get a concrete instance of the 
+secure factory, and then calls the 
+getObject()
+ method of the concrete factory to get the 
+appropriate object given the current security credentials. 
+ SecurityCredentials Œ The Security
+Credentials class provides a re
+presentation of the security 
+credentials of a user and/or operating environment. 
+ AbstractSecureFactory Œ The AbstractSecure
+Factory class serves several purposes: 
+ It provides a concrete instance of a secure factory via the 
+getInstance() method of 
+the factory. 
+ It allows the system to set the default concrete secure factory at runtime via the 
+se-tInstance() method. This makes it relatively easy to change the object selection me-
+thodology by specifying a different co
+ncrete secure factory at runtime. 
+ It defines the abstract 
+getObject()
+ method that must be implemented by all concrete 
+implementations of AbstractSecureFactory. The 
+getObject()
+ method is called by the 
+client to get the appropriate object
+ given some security credentials. 
+ 28   
+ ConcreteSecureFactoryN Œ Different object selection methodologies are implemented in var-
+ious concrete implementations of AbstractSecureFactory. Each concrete secure factory pro-
+vides an implementation of the 
+getObject()
+ method. 
+ SomeObject Œ The abstract SomeObject class 
+defines the basic interface implemented by the 
+objects returned by the secure factory. 
+ ConcreteObjectN Œ A concrete implementation of SomeObject will be created for each set of 
+object behaviors dictated by the current security information. For example, if an application 
+
+classifies users as having complete, little, or no trust, three concrete implementations of 
+SomeObject will be created, one for each trust level. A concrete implementation of Some-
+Object will only contain functionality appropriate for the concrete implementation™s corres-
+
+ponding trust level. 
+3.1.6 Consequences 
+ The security-credential dependent selection of the appropriate object is hidden from the por-
+tions of the system that make use of the sel
+ected object. The Secure Factory operates as a 
+black box supplying the appropriate object to the caller. This hides the security dependent 
+
+object selection logic from the caller. 
+ The objects created by the Secure Factory only need to implement functionality appropriate 
+to their corresponding trust level. Functionality that is not appropriate for the object's corres-
+
+ponding trust level will not be implemented in the object. 
+ The objects created by the Secure Factory do no
+t need to check to see if an action imple-
+mented in the object is allowed given information about the current user or operating envi-
+
+ronment. Those checks have already been perfo
+rmed by the Secure Factory that created the 
+object. 
+ The black box nature of the Secure Factory secure design pattern makes it easy to change the 
+security credential dependent behavior of the 
+system. Changes to the object selection logic or 
+the provided objects themselves will require li
+ttle or no changes to the code making use of 
+the Secure Factory. 
+3.1.7 Implementation The general process of implementing the Secure Factory secure design pattern is as follows: 
+1. Identify an object whose construction or choice depends on the level of trust associated with 
+a user or operating environment. Define an abstract class or interface describing the general 
+
+functionality supported by the object. 
+2. Implement the concrete classes that implement the trust level specific behavior of the object. 
+One concrete implementation will be created for each identified trust level. 
+3. Use the basic Abstract Factory pattern as described in the Structure section to define the Ab-
+stractSecureFactory class. 
+4. Identify the information needed to determine the trust level of a user or environment. This 
+information will be used to define the SecurityCredentials class or data structure. 
+5.  Implement a concrete secure factory that selects the appropriate object defined in step two 
+given security credentials defined in step 4. 

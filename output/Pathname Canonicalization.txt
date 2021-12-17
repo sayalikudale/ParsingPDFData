@@ -1,0 +1,91 @@
+ 94   
+  /* Handle error */ } 
+ 
+if (remove(file_name) != 0) { 
+  /* Handle error */ 
+} 4.4 Pathname Canonicalization 
+4.4.1 Intent The intent of the Pathname Canonicalization pattern is to ensure that all files read or written by a 
+program are referred to by a valid path that does not contain any symbolic links or shortcuts, that 
+is, a canonical path. 
+4.4.2 Motivation 
+Because of symbolic links and other file system features, a file may not actually reside in the di-
+
+rectory indicated by a path. Therefore, performing string-based validation on the pathname may 
+yield false results. Having the true, canonical pathname is particularly important when checking a 
+
+directory to see if it is secure. 
+4.4.3 Applicability 
+The use of the Pathname Canonicalization pattern is
+ applicable if all of the following conditions 
+are true: 
+ the program accepts pathnames from untrusted sources 
+ an attacker could provide a pathname to the sy
+stem that non-obviously refers to a directory 
+or file to which the attack
+er should not have access 
+ the program runs in an environment where each file has a unique canonical pathname 
+4.4.4 Structure 
+Programmatically, the structure of the Pathname Canonicalization pattern involves calling an OS-
+specific pathname canonicalization function on the 
+given pathname prior to opening the file. The 
+canonicalized pathname is used
+ when operating on the file. 
+The canonicalized pathname itself has a structure 
+such that every element of the canonicalized 
+path, except the last, is the genuine directory, an
+d not a link or shortcut. The last element is the 
+genuine filename, and not a link or shortcut. 
+4.4.5 Participants 
+The participants in the Pathname Canonicalization pattern are 
+ the program opening file(s) 
+ the file system (potentially, depending on the implementation of the OS-specific canonicali-
+zation function) 
+ 95   
+4.4.6 Consequences 
+ Pathname canonicalization guarantees that textual analysis of the canonicalized pathname 
+yields accurate results, which improves the 
+accuracy and security
+ of file access. 
+ The program speed is degraded due to the canonicalization of pathnames. To reduce the 
+overhead of canonicalization, it is possible to
+ cache the canonicalized pathname. Note that 
+such caching assumes that the directory structure accessed by the program is not changed 
+during program execution. 
+4.4.7 Implementation The core of the implementation of this pattern is an OS-specific function for performing pathname 
+canonicalization. The canonicalization function is a 
+routine that would ensure that every directory 
+in a pathname is a genuine directory rather than 
+a link or shortcut. The result of the canonicaliza-
+tion function is a canonicalized path such that string-based validation of the path always yields 
+valid results. For instance, a canonicalized path that begins with the pathname to a user™s home 
+
+directory will guarantee that the path™s file live
+s in the user™s home directory or a subdirectory 
+below the user™s home directory. 
+As discussed in the Structure section, given the canonicalization function, the implementation of 
+the Pathname Canonicalization pattern is fairly simple: 
+1. The program calls the OS-specific pathname canonicalization function on the given path-
+name prior to opening a file. 
+2. The canonicalized pathname is used when operating on the file. 
+Canonicalization routines should be provided by the platform; a program should simply call the 
+platform™s canonicalization routine before performing textual analysis on a pathname. Some OS-
+specific canonicalization functions are 
+ POSIX-compliant OSs: 
+realpath()
+  systems with 
+glibc: canonicalize_file_name()
+, a GNU extension provided in 
+glibc See FIO02-C, ﬁCanonicalize path names originating from untrusted sources for implementation 
+detailsﬂ in 
+The CERT C Secure Coding Standard
+ [Seacord 2008]. 
+4.4.8 Sample Code 
+The following sample code canonicalizes a user-supplied pathname before verifying and opening 
+the file. 
+/* Verify argv[1] is supplied */  
+char *canonical_filename = canonicalize_file_name(argv[1]); if (canonical_filename == NULL) {   /* Handle error */ 
+} 
+ 
+/* Verify filename */  if (fopen(canonical_filename, "w") == NULL) { 
+  /* Handle error */ 
+} 
